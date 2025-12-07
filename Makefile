@@ -1,7 +1,11 @@
 PYTHON ?= python3.13
 VENV ?= .venv
 
-.PHONY: help venv dev-install lint format typecheck pre-commit-install addon-build
+# Extract add-on version from wyoming-moonshine/config.yaml (expects a line like: version: "0.1.0")
+VERSION := $(shell sed -n 's/^version: "\(.*\)"/\1/p' wyoming-moonshine/config.yaml)
+TAG := v$(VERSION)
+
+.PHONY: help venv dev-install lint format typecheck pre-commit-install addon-build release
 
 help: ## Show this help message
 	@printf "Home Assistant Moonshine add-ons repo\n"
@@ -30,3 +34,19 @@ pre-commit-install: ## Install pre-commit hooks
 
 addon-build: ## Build the wyoming-moonshine add-on image locally
 	cd wyoming-moonshine && docker build --build-arg BUILD_FROM=ghcr.io/home-assistant/amd64-base:latest -t wyoming-moonshine-addon:local .
+
+release: addon-build ## Tag current commit with add-on version and push tag for GitHub Actions
+	@if [ -z "$(VERSION)" ]; then \
+		echo "ERROR: Could not determine version from wyoming-moonshine/config.yaml"; \
+		exit 1; \
+	fi
+	@if ! git diff --quiet || ! git diff --cached --quiet; then \
+		echo "ERROR: Working tree not clean; commit or stash changes before releasing"; \
+		exit 1; \
+	fi
+	@if git rev-parse "$(TAG)" >/dev/null 2>&1; then \
+		echo "ERROR: Tag $(TAG) already exists"; \
+		exit 1; \
+	fi
+	@git tag -a "$(TAG)" -m "Release $(TAG)"
+	@git push origin "$(TAG)"
