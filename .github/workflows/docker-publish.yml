@@ -55,8 +55,6 @@ jobs:
           context: wyoming-moonshine
           platforms: linux/${{ matrix.platform }}
           push: true
-          build-args: |
-            BUILD_FROM=ghcr.io/home-assistant/${{ matrix.base_arch }}-base:latest
           tags: |
             ${{ env.IMAGE_BASE }}-${{ matrix.arch }}:${{ steps.vars.outputs.tag }}
             ${{ env.IMAGE_BASE }}-${{ matrix.arch }}:latest
