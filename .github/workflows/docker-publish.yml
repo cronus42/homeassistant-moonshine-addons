@@ -1,0 +1,44 @@
+name: Publish wyoming-moonshine add-on
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - "v*"
+
+jobs:
+  push-ghcr:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push add-on image
+        working-directory: wyoming-moonshine
+        run: |
+          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/wyoming-moonshine-addon-amd64
+          REF="${GITHUB_REF}"
+
+          if [[ "$REF" == "refs/heads/master" ]]; then
+            TAG=latest
+            docker build -t "${IMAGE_NAME}:${TAG}" --build-arg BUILD_FROM=ghcr.io/home-assistant/amd64-base:latest .
+            docker push "${IMAGE_NAME}:${TAG}"
+          elif [[ "$REF" == refs/tags/* ]]; then
+            TAG="${REF#refs/tags/}"
+            docker build -t "${IMAGE_NAME}:${TAG}" --build-arg BUILD_FROM=ghcr.io/home-assistant/amd64-base:latest .
+            docker push "${IMAGE_NAME}:${TAG}"
+            docker tag "${IMAGE_NAME}:${TAG}" "${IMAGE_NAME}:latest"
+            docker push "${IMAGE_NAME}:latest"
+          fi
