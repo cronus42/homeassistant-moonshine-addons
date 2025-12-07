@@ -30,7 +30,8 @@ Architectures currently built:
 Tags:
 
 - `latest` – built from the `master` branch
-- `<ref>` – built from tags such as `v0.1.0`
+- `vX.Y.Z` – built from Git tags such as `v0.2.0`
+- `X.Y.Z` – additional semver tag (e.g. `0.2.0`) created from `vX.Y.Z` for use in the add-on manifest `version`
 
 The GitHub Actions workflow (`.github/workflows/docker-publish.yml`) runs on:
 

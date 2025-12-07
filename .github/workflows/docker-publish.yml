@@ -58,3 +58,11 @@ jobs:
           tags: |
             ${{ env.IMAGE_BASE }}-${{ matrix.arch }}:${{ steps.vars.outputs.tag }}
             ${{ env.IMAGE_BASE }}-${{ matrix.arch }}:latest
+
+      - name: Tag semver image (${{ matrix.arch }}) for v* tags
+        if: github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
+        run: |
+          plain_tag="${GITHUB_REF_NAME#v}"
+          src="${IMAGE_BASE}-${{ matrix.arch }}:${GITHUB_REF_NAME}"
+          dst="${IMAGE_BASE}-${{ matrix.arch }}:${plain_tag}"
+          docker buildx imagetools create --tag "$dst" "$src"
