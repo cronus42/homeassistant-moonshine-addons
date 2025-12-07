@@ -140,8 +140,7 @@ async def _async_main() -> None:
         if profile is None:
             known_profiles = ", ".join(sorted(PROFILES))
             raise ValueError(
-                f"Unknown profile {args.profile!r}. "
-                f"Known profiles: {known_profiles}"
+                f"Unknown profile {args.profile!r}. Known profiles: {known_profiles}"
             )
 
         # Explicit CLI flags win over profile defaults.
@@ -178,7 +177,9 @@ async def _async_main() -> None:
         server = AsyncUnixServer(parsed.path)
         bind_desc = f"unix://{parsed.path}"
     else:
-        raise ValueError(f"Unsupported URI scheme in {args.uri!r} (expected tcp:// or unix://)")
+        raise ValueError(
+            f"Unsupported URI scheme in {args.uri!r} (expected tcp:// or unix://)"
+        )
 
     logger.info(
         "Starting Moonshine Wyoming ASR server on %s with model %s (language=%s)",

@@ -1,7 +1,7 @@
 name: "Wyoming Moonshine ASR"
 slug: wyoming_moonshine
 description: "Moonshine ONNX speech recognition exposed via the Wyoming protocol."
-version: "0.2.0"
+version: "0.2.1"
 arch:
   - amd64
   - aarch64
