@@ -1,0 +1,16 @@
+[tool.ruff]
+line-length = 88
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+
+[tool.mypy]
+python_version = "3.13"
+warn_unused_configs = true
+warn_unused_ignores = true
+strict_optional = true
+ignore_missing_imports = true
+
+[tool.mypy.wyoming_moonshine]
+ignore_missing_imports = true

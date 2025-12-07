@@ -1,0 +1,28 @@
+name: "Wyoming Moonshine ASR"
+slug: wyoming_moonshine
+description: "Moonshine ONNX speech recognition exposed via the Wyoming protocol."
+version: "0.1.0"
+arch:
+  - amd64
+  - aarch64
+startup: services
+boot: auto
+
+ports:
+  "10300/tcp": 10300
+
+ingress: false
+panel_icon: "mdi:microphone"
+hassio_api: false
+homeassistant_api: false
+
+options:
+  model: "moonshine/tiny"
+  language: "en"
+  log_level: "INFO"
+schema:
+  model: str
+  language: str
+  log_level: list(DEBUG|INFO|WARNING|ERROR)
+
+image: "ghcr.io/cronus42/wyoming-moonshine-addon-{arch}"

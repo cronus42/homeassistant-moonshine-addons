@@ -1,0 +1,2 @@
+wyoming>=1.8.0
+useful-moonshine-onnx@git+https://git@github.com/moonshine-ai/moonshine.git#subdirectory=moonshine-onnx
