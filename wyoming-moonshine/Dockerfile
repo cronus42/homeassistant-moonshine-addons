@@ -4,6 +4,8 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     VIRTUAL_ENV=/venv
 ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
+ENV HF_HOME=/data/huggingface \
+    HUGGINGFACE_HUB_CACHE=/data/huggingface/hub
 
 # System dependencies needed for pip (git+https URLs) and run.sh (jq for /data/options.json)
 RUN apt-get update \

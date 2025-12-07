@@ -51,7 +51,7 @@ class MoonshineAsrHandler(AsyncEventHandler):
         self._audio_format: Optional[AudioStart] = None
         self._too_long = False
 
-    async def handle_event(self, event: Event) -> bool:  # type: ignore[override]
+    async def handle_event(self, event: Event) -> bool:
         """Main event loop for a single Wyoming connection.
 
         We respond to:

@@ -1,6 +1,11 @@
 #!/usr/bin/env sh
 set -e
 
+# Persist Hugging Face cache under /data so models are reused across restarts
+export HF_HOME=/data/huggingface
+export HUGGINGFACE_HUB_CACHE="${HF_HOME}/hub"
+mkdir -p "${HUGGINGFACE_HUB_CACHE}"
+
 OPTIONS_FILE="/data/options.json"
 
 MODEL=$(jq -r '.model // "moonshine/tiny"' "$OPTIONS_FILE")

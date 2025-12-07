@@ -15,9 +15,11 @@ import argparse
 import asyncio
 import logging
 import sys
-from typing import Any, Dict, Iterable
+from pathlib import Path
+from typing import Any, Dict, Iterable, cast
 from urllib.parse import urlparse
 
+import moonshine_onnx
 from wyoming.server import AsyncTcpServer, AsyncUnixServer
 
 from .handler import MoonshineAsrHandler
@@ -35,6 +37,38 @@ PROFILES = {
         "max_seconds": 30.0,
     },
 }
+
+
+async def _warmup_moonshine_model(model_name: str, logger: logging.Logger) -> None:
+    """Warm up the Moonshine ONNX model so the first request is faster.
+
+    This downloads model weights (if not already cached) and initializes the
+    runtime by running a single transcription on the built-in sample audio.
+    """
+
+    try:
+        assets_dir = getattr(moonshine_onnx, "ASSETS_DIR", None)
+        if not assets_dir:
+            logger.info(
+                "Moonshine ASSETS_DIR not available; skipping warmup for model %s",
+                model_name,
+            )
+            return
+
+        sample = Path(assets_dir) / "beckett.wav"
+        if not sample.is_file():
+            logger.info(
+                "Moonshine sample audio %s missing; skipping warmup for model %s",
+                sample,
+                model_name,
+            )
+            return
+
+        logger.info("Warming up Moonshine model %s using %s", model_name, sample)
+        await asyncio.to_thread(moonshine_onnx.transcribe, sample, model_name)
+        logger.info("Warmup for Moonshine model %s completed", model_name)
+    except Exception:  # pragma: no cover - defensive logging only
+        logger.exception("Moonshine warmup failed; continuing without preloaded model")
 
 
 def _parse_moonshine_options(pairs: Iterable[str]) -> Dict[str, Any]:
@@ -133,7 +167,7 @@ async def _async_main() -> None:
     # Resolve profile-based defaults.
     model_name = args.model
     language = args.language
-    max_seconds = None
+    max_seconds: float | None = None
 
     if args.profile:
         profile = PROFILES.get(args.profile)
@@ -148,9 +182,14 @@ async def _async_main() -> None:
             model_name = profile.get("model", model_name)
         if "--language" not in sys.argv:
             language = profile.get("language", language)
-        max_seconds = profile.get("max_seconds")
+
+        raw_max_seconds = profile.get("max_seconds")
+        max_seconds = cast(float | None, raw_max_seconds)
 
     moonshine_options = _parse_moonshine_options(args.moonshine_option)
+
+    # Perform a one-time warmup so the first real transcription is faster.
+    await _warmup_moonshine_model(model_name, logger)
 
     # Factory to create a new handler per connection.
     # Wyoming 1.8 calls this as handler_factory(reader, writer).

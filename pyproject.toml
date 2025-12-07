@@ -12,5 +12,5 @@ warn_unused_ignores = true
 strict_optional = true
 ignore_missing_imports = true
 
-[tool.mypy.wyoming_moonshine]
+[tool.mypy-wyoming_moonshine]
 ignore_missing_imports = true
