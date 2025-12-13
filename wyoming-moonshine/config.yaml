@@ -1,7 +1,7 @@
 name: "Wyoming Moonshine ASR"
 slug: wyoming_moonshine
 description: "Moonshine ONNX speech recognition exposed via the Wyoming protocol."
-version: "0.2.1"
+version: "0.2.2"
 arch:
   - amd64
   - aarch64
@@ -20,9 +20,14 @@ options:
   model: "moonshine/tiny"
   language: "en"
   log_level: "INFO"
+  offline_after_startup: true
+  hf_home_dir: "/data/hf"
 schema:
   model: str
   language: str
   log_level: list(DEBUG|INFO|WARNING|ERROR)
+  offline_after_startup: bool
+  hf_home_dir: str
+  hf_token: password?
 
 image: "ghcr.io/cronus42/wyoming-moonshine-addon-{arch}"

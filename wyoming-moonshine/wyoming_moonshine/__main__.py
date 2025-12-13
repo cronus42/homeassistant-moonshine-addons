@@ -15,15 +15,22 @@ import argparse
 import asyncio
 import logging
 import sys
-from typing import Any, Dict, Iterable
+from typing import Any, Dict, Iterable, TypedDict
 from urllib.parse import urlparse
 
 from wyoming.server import AsyncTcpServer, AsyncUnixServer
 
 from .handler import MoonshineAsrHandler
 
+
+class Profile(TypedDict):
+    model: str
+    language: str
+    max_seconds: float
+
+
 # Built-in profiles that tune model/language and simple limits.
-PROFILES = {
+PROFILES: dict[str, Profile] = {
     "fast-en": {
         "model": "moonshine/tiny",
         "language": "en",
@@ -133,7 +140,7 @@ async def _async_main() -> None:
     # Resolve profile-based defaults.
     model_name = args.model
     language = args.language
-    max_seconds = None
+    max_seconds: float | None = None
 
     if args.profile:
         profile = PROFILES.get(args.profile)
@@ -145,10 +152,10 @@ async def _async_main() -> None:
 
         # Explicit CLI flags win over profile defaults.
         if "--model" not in sys.argv:
-            model_name = profile.get("model", model_name)
+            model_name = profile["model"]
         if "--language" not in sys.argv:
-            language = profile.get("language", language)
-        max_seconds = profile.get("max_seconds")
+            language = profile["language"]
+        max_seconds = profile["max_seconds"]
 
     moonshine_options = _parse_moonshine_options(args.moonshine_option)
 
